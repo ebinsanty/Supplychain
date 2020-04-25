@@ -34,39 +34,53 @@ class App extends Component {
     }
   };
 
-  runExample = async () => {
-    const { accounts, contract } = this.state;
+  // runExample = async () => {
+  //   const { accounts, contract } = this.state;
 
-    // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
+  //   // Stores a given value, 5 by default.
+  //   await contract.methods.set(5).send({ from: accounts[0] });
 
-    // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
+  //   // Get the value from the contract to prove it worked.
+  //   const response = await contract.methods.get().call();
 
-    // Update state with the result.
-    this.setState({ storageValue: response });
-  };
+  //   // Update state with the result.
+  //   this.setState({ storageValue: response });
+  // };
 
-  render() {
-    if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
+  handleSubmit = async () => {
+    const { cost, itemName } = this.state;
+    console.log(itemName, cost, this.itemManager);
+    let result = await this.itemManager.methods.createItem(itemName, cost).send({ from:
+   this.accounts[0] });
+    console.log(result);
+    alert("Send "+cost+" Wei to "+result.events.SupplyChainStep.returnValues._address);
+    };
+    handleInputChange = (event) => {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+    this.setState({
+    [name]: value
+    });
     }
-    return (
+
+    render() {
+      if (!this.state.loaded) {
+      return <div>Loading Web3, accounts, and contract...</div>;
+      }
+      return (
       <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+      <h1>Simply Payment/Supply Chain Example!</h1>
+      <h2>Items</h2>
+      
+      <h2>Add Element</h2>
+      Cost: <input type="text" name="cost" value={this.state.cost} onChange={this.handle
+     InputChange} />
+      Item Name: <input type="text" name="itemName" value={this.state.itemName} onChange
+     ={this.handleInputChange} />
+      <button type="button" onClick={this.handleSubmit}>Create new Item</button>
       </div>
-    );
-  }
-}
+      );
+      }
 
 export default App;
